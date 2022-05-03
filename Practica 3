@@ -2,6 +2,7 @@
 <html>
     <head>
         <title>Practica 3 - DASH</title>
+	<script src="https://reference.dashif.org/dash.js/latest/dist/dash.all.debug.js"></script>
     </head>
     <body>
 		<h1> IRAC Practica 3 - Grupo 36 </h1>
