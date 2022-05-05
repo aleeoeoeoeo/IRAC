@@ -8,17 +8,9 @@
 		<h1> IRAC Practica 3 - Grupo 36 </h1>
     
         <video class="dashjs-player" width="1280" height="720" autoplay controls preload="auto">
-		<source src="https://dash.akamaized.net/envivio/EnvivioDash3/manifest.mpd" type="application/dash+xml"/>
 		</video>
-
-		<script>
-			var player;
-			document.addEventListener("DOMContentLoaded", function () {
-				init();
-			});
-			function init(){
-				player = dashjs.MediaPlayerFactory.create( document.querySelector(".dashjs-player"));
-			};
+<script>
+		
     <div class="code">
       <video class="dashjs-player" autoplay controls preload="auto" muted>
       </video>
@@ -61,6 +53,6 @@
         }, 500);
         }
       </div>
-		</script>
+</script>
     </body>
 </html>
