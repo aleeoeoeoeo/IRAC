@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <title>Practica 3 - DASH</title>
+   </head>
+   <body>
+      <h1> IRAC Practica 3 - Grupo 36 </h1>
+      <video class="dashjs-player" width="1280" height="720" autoplay controls preload="auto">
+      </video>
+      <script>
+         const protData = {
+         "org.w3.clearkey": {
+         "clearkeys": {
+         "oW5AK5BW43HzbTSKpiu3SQ": "hyN9IKGfWKdAwFaE5pm0qg"
+         }
+          }
+         };
+      </script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/dashjs/3.1.1/dash.all.min.js"></script>
+      <div class="code">
+         <!-- <script>
+            </script>-->    
+         <p>Video Bitrate: <span id="bitrate"></span> kbps</p>
+         <p>Video Buffer: <span id="buffer"></span> seconds</p>
+         <p>Video Representation: <span id="representation"></span></p>
+      </div>
+      <div>
+         <canvas id="myChart" width="1280px" height="720px"></canvas>
+         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+      </div>
+      <script>
+         const ctx = document.getElementById('myChart').getContext('2d');
+         const labels = [];
+         const data = {
+             labels: labels,
+             datasets: [{
+                 label: 'bitrate',
+                 borderColor: 'rgb(249, 51, 255)',
+                 backgroundColor: 'rgb(249, 51, 255, 0.5)',
+                 borderWidth: 1,
+                 fill: true,
+                 yAxiSID: 'y1'
+             },
+             {
+                 label: 'bufferlevel',
+                 bordercolor: 'rgb(0, 0, 0)',
+                 backgroundcolor: 'rgb(0, 0, 0, 0.5)',
+                 borderWidth: 1,
+                 fill: true,
+                 yAxisID: 'y2',
+             }
+            ]
+         }
+         const config = {
+             type: 'line',
+             data: data,
+             options: {
+                 interaction: {
+                     mode: 'index',
+                     intersect: false
+                 },
+                 responsive: true,
+                 scales: {
+                     
+                     y1: {
+                         type: 'linear',
+                         display: true,
+                         title: {
+                             display: true,
+                             labelstrig: 'Buffer Level (s)'
+                             
+                         },
+                         position: 'left'
+                     },
+                     y2: {
+                         type: 'linear',
+                         display: true,
+                         title: {
+                             display: true,
+                             labelStrig: 'Bitrate (Kbps)'
+                         },
+                         position: 'right'
+                         
+                     },
+                    
+                     
+                 },
+             },
+         };
+         var myChart = new Chart(ctx, config);
+      </script>
+      <script>
+         function current_time() {
+         var d = new Date();
+         return (
+         d.getHours() +
+         ":" +
+         (d.getMinutes() < 10 ? "0" : "") +
+         d.getMinutes() +
+         "," +
+         (d.getSeconds() < 10 ? "0" : "") +
+         d.getSeconds()
+         );
+         }
+         
+      </script>
+      <script>
+         document.addEventListener("DOMContentLoaded", function () {
+           init();
+         });
+         function init() {
+           var video,
+             player,
+             mpd_url = "./output_encrypted/stream.mpd";
+           video = document.querySelector("video");
+           player = dashjs.MediaPlayer().create();
+           player.setProtectionData(protData);
+           player.initialize(video, mpd_url, true);
+           player.on(dashjs.MediaPlayer.events["PLAYBACK_ENDED"], function () {
+             clearInterval(eventPoller);
+           });
+           var eventPoller = setInterval(function () {
+             var streamInfo = player.getActiveStream().getStreamInfo();
+             var dashMetrics = player.getDashMetrics();
+             var dashAdapter = player.getDashAdapter();
+             if (dashMetrics && streamInfo) {
+               const periodIdx = streamInfo.index;
+               var repSwitch = dashMetrics.getCurrentRepresentationSwitch(
+                 "video",
+                 true
+               );
+               var bufferLevel = dashMetrics.getCurrentBufferLevel("video", true);
+               var bitrate = repSwitch
+                 ? Math.round(
+                     dashAdapter.getBandwidthForRepresentation(
+                       repSwitch.to,
+                       periodIdx
+                     ) / 1000
+                   )
+                 : NaN;
+                 addData(myChart,current_time(),bufferLevel,bitrate)
+               document.getElementById("buffer").innerText = bufferLevel + " secs";
+               document.getElementById("bitrate").innerText = bitrate + " Kbps";
+               document.getElementById("representation").innerText = repSwitch.to;
+             }
+           }, 500);
+         }
+         
+         function addData(chart, label,new_buffer , new_bitrate) {
+         chart.data.labels.push(label);
+         chart.data.datasets[1].data.push(new_buffer);
+         chart.data.datasets[0].data.push(new_bitrate);
+         chart.update();
+         }
+         
+      </script>
+      <script src="https://reference.dashif.org/dash.js/latest/dist/dash.all.debug.js"></script>
+   </body>
+</html>
